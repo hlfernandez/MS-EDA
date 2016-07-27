@@ -27,8 +27,12 @@ loadSamples <- function(dataDir) {
 	list(names=names, spectra=spectra)
 }
 
-loadDirectories <- function(dataDirs) {
-	palette <- sample(colors(TRUE))[1:length(dataDirs)]
+loadDirectories <- function(dataDirs, col) {
+	if(missing(col)) {
+		palette <- sample(colors(TRUE))[1:length(dataDirs)]
+	} else {
+		palette <- col[1:length(dataDirs)]
+	}
 	spectraColors <- list()
 	names 	<- list()
 	spectra <- list()

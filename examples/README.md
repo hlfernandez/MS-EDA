@@ -1,4 +1,4 @@
-# 'examples'
+# `examples`
 This folder contains the following examples of data analysis using 'lib' scripts:
 - `explore-data`: showing a heatmap to visually inspect a dataset.
 - `clustering`: an example of sample clustering using a heatmap along with a dendrogram to display results.

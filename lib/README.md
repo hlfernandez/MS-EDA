@@ -1,2 +1,2 @@
 # `lib`
-This folder scripts with useful functions to load and analyze mass spectrometry data.
+This folder contains scripts with useful functions to load and analyze mass spectrometry data.
