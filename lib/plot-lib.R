@@ -41,9 +41,7 @@ cor.dist <- function(x){
 	as.dist(1- abs(cor(t(x), use="pairwise.complete.obs")))
 }
 
-heatmap <- function(data, peakIntensityThreshold=0) {
-	binnedPeaksMatrix <- getBinnedPeaksMatrix(data, peakIntensityThreshold=peakIntensityThreshold)
-
+heatmap.matrix <- function(binnedPeaksMatrix, spectraColors) {
 	dend <- as.dendrogram(hclust(cor.dist(binnedPeaksMatrix)^2, method="ward")) # Distances must be squared when using ward method
 
 	breaks <- seq(quantile(binnedPeaksMatrix,na.rm=TRUE,probs=0.001),quantile(binnedPeaksMatrix,probs=0.999,na.rm=TRUE),length.out = 24)
@@ -56,7 +54,7 @@ heatmap <- function(data, peakIntensityThreshold=0) {
 		breaks=breaks,
 		col=bluered(length(breaks)-1),
 		scale="none",
-		RowSideColors=data$spectraColors,
+		RowSideColors=spectraColors,
 		na.color = 'gray',
 		distfun=cor.dist,
 		hclustfun=hclust.ward,
@@ -66,8 +64,21 @@ heatmap <- function(data, peakIntensityThreshold=0) {
 	)
 }
 
-pngHeatmap <- function(data, file, peakIntensityThreshold=0) {
+heatmap <- function(data, peakIntensityThreshold=0) {
+	binnedPeaksMatrix <- getBinnedPeaksMatrix(data, peakIntensityThreshold=peakIntensityThreshold)
+	
+	heatmap.matrix(binnedPeaksMatrix, data$spectraColors)
+}
+
+
+pngHeatmap.matrix <- function(binnedPeaksMatrix, spectraColors, file) {
 	pngOn(file)
-	heatmap(data, peakIntensityThreshold=peakIntensityThreshold)
+	heatmap.matrix(binnedPeaksMatrix, spectraColors)
 	pngOff()
+}
+
+pngHeatmap <- function(data, file, peakIntensityThreshold=0) {
+	binnedPeaksMatrix <- getBinnedPeaksMatrix(data, peakIntensityThreshold=peakIntensityThreshold)
+	
+	pngHeatmap.matrix(binnedPeaksMatrix, data$spectraColors, file)
 }
