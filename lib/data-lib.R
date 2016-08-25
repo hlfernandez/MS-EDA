@@ -1,6 +1,6 @@
 require("MALDIquant")
 
-loadDirectory <- function(dataDir) {
+loadDirectory <- function(dataDir, consensus=FALSE, tolerance=0.002, POP=0.5) {
 	spectra <- list.files(dataDir)
 	spectraData <- list()
 	for (spectrumFile in spectra){
@@ -10,16 +10,42 @@ loadDirectory <- function(dataDir) {
 		spectraData <- c(spectraData, spectrum)
 	}
 	
+	if(consensus) {
+		binnedPeaks <- binPeaks(spectraData, tolerance=0.002);
+		binnedPeaksMatrix <- intensityMatrix(binnedPeaks);
+		
+		consensusMasses <- vector()
+		consensusIntensities <- vector()
+		
+		for (i in 1:ncol(binnedPeaksMatrix)){
+			presences = 0;
+			for (j in 1:length(binnedPeaksMatrix[,i])){
+				if (!is.na(binnedPeaksMatrix[j,i])) presences = presences+1;
+			}
+			if (presences> (POP * length(binnedPeaksMatrix[,i]))){
+				consensusMasses <- c(consensusMasses, colnames(binnedPeaksMatrix)[i])
+				consensusIntensities <- c(consensusIntensities, mean(binnedPeaksMatrix[,i], na.rm=TRUE))
+			}
+		}
+		spectrum <- createMassPeaks(
+			mass=as.numeric(consensusMasses), 
+			intensity=as.numeric(consensusIntensities), 
+			metaData=list(name="consensus")
+		)
+		spectraData <- list()
+		spectraData <- c(spectraData, spectrum)
+	} 
+	
 	spectraData
 }
 
-loadSamples <- function(dataDir) {
+loadSamples <- function(dataDir, consensus=FALSE, tolerance=0.002, POP=0.5) {
 	samples <- list.files(dataDir)
 	spectra <- list()
 	names <- list()
 	for (sampleDir in samples){
 		sampleDirectory <- paste(dataDir,"/", sampleDir, sep='')
-		sampleSpectra <- loadDirectory(sampleDirectory)
+		sampleSpectra <- loadDirectory(sampleDirectory, consensus, tolerance, POP)
 		spectra <- c(spectra, sampleSpectra)
 		names <- c(names, sapply(1:length(sampleSpectra), FUN=function(x) paste(sampleDir,"_R",x,sep='')))
 	}
@@ -27,7 +53,7 @@ loadSamples <- function(dataDir) {
 	list(names=names, spectra=spectra)
 }
 
-loadDirectories <- function(dataDirs, col) {
+loadDirectories <- function(dataDirs, col, consensus=FALSE, tolerance=0.002, POP=0.5) {
 	if(missing(col)) {
 		palette <- sample(colors(TRUE))[1:length(dataDirs)]
 	} else {
@@ -39,7 +65,7 @@ loadDirectories <- function(dataDirs, col) {
 
 	i <- 1
 	for (dataDir in dataDirs){
-		data <- loadSamples(dataDir)
+		data <- loadSamples(dataDir, consensus, tolerance, POP)
 		names <- unlist(c(names, data$names))
 		spectra <- c(spectra, data$spectra)
 		spectraColors <- unlist(c(spectraColors, rep(palette[i], length(data$spectra))))

@@ -1,6 +1,6 @@
 source("lib/data-lib.R")
 
-cancerDataset <- function() {
+cancerDataset <- function(consensus=FALSE) {
 	dataDirs <- c(
 		"data/cancer-dataset-supernatant/HEALTHY/",
 		"data/cancer-dataset-supernatant/LYMPHOMA/",
@@ -9,5 +9,5 @@ cancerDataset <- function() {
 	
 	colors <- c("red", "blue", "green")
 
-	loadDirectories(dataDirs, colors)
+	loadDirectories(dataDirs, colors, consensus)
 }
