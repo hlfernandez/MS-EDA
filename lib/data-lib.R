@@ -40,7 +40,7 @@ loadDirectory <- function(dataDir, consensus=FALSE, tolerance=0.002, POP=0.5) {
 }
 
 loadSamples <- function(dataDir, consensus=FALSE, tolerance=0.002, POP=0.5) {
-	samples <- list.files(dataDir)
+	samples <- list.dirs(dataDir, full.names=FALSE, recursive=FALSE)
 	spectra <- list()
 	names <- list()
 	for (sampleDir in samples){
