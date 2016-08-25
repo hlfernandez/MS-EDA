@@ -84,3 +84,7 @@ getBinnedPeaksMatrix <- function(data, tolerance=0.002, peakIntensityThreshold=0
 
 	binnedPeaksMatrix
 }
+
+data.subset <- function(data, from, to) {
+	list(names=data$names[from:to], spectra=data$spectra[from:to], spectraColors=data$spectraColors[from:to])
+}
