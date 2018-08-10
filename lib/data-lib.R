@@ -1,5 +1,10 @@
 require("MALDIquant")
 
+var.m <- function(x) {
+	diferences <- x-mean(x)
+	sum(diferences*diferences)/length(x)
+}
+
 loadDirectory <- function(dataDir, consensus=FALSE, tolerance=0.002, POP=0.5) {
 	spectra <- list.files(dataDir)
 	spectraData <- list()
@@ -85,6 +90,63 @@ getBinnedPeaksMatrix <- function(data, tolerance=0.002, peakIntensityThreshold=0
 	binnedPeaksMatrix
 }
 
+asPresenceMatrix <- function(data) {
+	toret <- data
+	toret[data > 0] <- 1;
+	toret[data == NA] <- 0;
+	toret
+}
+
 data.subset <- function(data, from, to) {
 	list(names=data$names[from:to], spectra=data$spectra[from:to], spectraColors=data$spectraColors[from:to])
+}
+
+jaccard <- function(a, b) {
+	length(intersect(a,b)) / length(union(a, b))
+}
+
+#
+# This function returns a data matrix where all samples in the input data are compared in pairs by calculating
+# the Jaccard similarity index (https://en.wikipedia.org/wiki/Jaccard_index).
+# 
+# The parameter data must have the structure returned by the loadDirectories or loadSamples functions, that is,
+# it must have data$names and a data$spectra variables.
+#
+# Note that the spectra must been binned or matched before, so that they are comparable in terms of peak presence.
+#
+jaccardAnalysis <- function(data) {
+	result <- c()
+
+	for(i in 1:length(data$spectra)) {
+		currentValues <- rep(NA, length(data$names))
+		for(j in i:length(data$spectra)) {
+			massesA <- mass(data$spectra[[i]])
+			massesB <- mass(data$spectra[[j]])
+			currentValues[j] <- jaccard(massesA, massesB)
+		}
+		result <- rbind(result, currentValues)
+	}
+
+	rownames(result) <- data$names
+	colnames(result) <- data$names
+	result
+}
+
+#
+# Converts a binned peaks matrix into a list of MassPeak objects.
+#
+toSpectraList <- function(binnedPeaksMatrix) {
+	spectraData <- list()
+
+	for(i in 1:nrow(binnedPeaksMatrix)) {
+		intensities <- as.numeric(binnedPeaksMatrix[i,])
+		masses <- as.numeric(as.character(colnames(binnedPeaksMatrix)))
+
+		masses <- masses[intensities > 0]
+		intensities <- intensities[intensities > 0]
+
+		spectrum <- createMassPeaks(mass=masses, intensity=intensities, metaData=list(name=rownames(binnedPeaksMatrix)[i]))
+		spectraData <- c(spectraData, spectrum)
+	}
+	spectraData
 }

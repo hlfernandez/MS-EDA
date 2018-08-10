@@ -1,7 +1,8 @@
 # `examples`
 This folder contains the following examples of data analysis using 'lib' scripts:
-- `explore-data`: showing a heatmap to visually inspect a dataset.
 - `clustering`: an example of sample clustering using a heatmap along with a dendrogram to display results.
+- `explore-data`: an example showing a heatmap to visually inspect a dataset.
+- `jaccard-analysis`: an example of a sample pairwise comparisong using the Jaccard similarity index.
 - `pca`: an example of principal component analysis with 3D representation.
 
 ## Usage
